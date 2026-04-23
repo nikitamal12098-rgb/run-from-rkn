@@ -4,7 +4,6 @@ namespace GamePrototype
 
     public partial class Form1 : Form
     {
-        TableLayoutPanel table;
         public Form1()
         {
             InitializeComponent();
