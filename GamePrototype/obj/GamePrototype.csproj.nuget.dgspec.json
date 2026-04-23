@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\nikit\\source\\repos\\GamePrototype\\GamePrototype\\GamePrototype.csproj": {}
+    "C:\\Users\\nikit\\myGameForC#\\run-from-rkn\\GamePrototype\\GamePrototype.csproj": {}
   },
   "projects": {
-    "C:\\Users\\nikit\\source\\repos\\GamePrototype\\GamePrototype\\GamePrototype.csproj": {
+    "C:\\Users\\nikit\\myGameForC#\\run-from-rkn\\GamePrototype\\GamePrototype.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\nikit\\source\\repos\\GamePrototype\\GamePrototype\\GamePrototype.csproj",
+        "projectUniqueName": "C:\\Users\\nikit\\myGameForC#\\run-from-rkn\\GamePrototype\\GamePrototype.csproj",
         "projectName": "GamePrototype",
-        "projectPath": "C:\\Users\\nikit\\source\\repos\\GamePrototype\\GamePrototype\\GamePrototype.csproj",
+        "projectPath": "C:\\Users\\nikit\\myGameForC#\\run-from-rkn\\GamePrototype\\GamePrototype.csproj",
         "packagesPath": "C:\\Users\\nikit\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\nikit\\source\\repos\\GamePrototype\\GamePrototype\\obj\\",
+        "outputPath": "C:\\Users\\nikit\\myGameForC#\\run-from-rkn\\GamePrototype\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
