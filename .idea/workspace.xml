@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="7173e44b-5dc4-4b53-8064-c82e84bc0160" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/GamePrototype/Form1.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/Form1.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/bin/Debug/net10.0-windows/GamePrototype.dll" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/bin/Debug/net10.0-windows/GamePrototype.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/bin/Debug/net10.0-windows/GamePrototype.exe" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/bin/Debug/net10.0-windows/GamePrototype.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/bin/Debug/net10.0-windows/GamePrototype.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/bin/Debug/net10.0-windows/GamePrototype.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.AssemblyInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.AssemblyInfoInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.dll" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.sourcelink.json" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/GamePrototype.sourcelink.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/apphost.exe" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/apphost.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/ref/GamePrototype.dll" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/ref/GamePrototype.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/refint/GamePrototype.dll" beforeDir="false" afterPath="$PROJECT_DIR$/GamePrototype/obj/Debug/net10.0-windows/refint/GamePrototype.dll" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="my-3d-game" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GradleModuleStateConfig" initialized="true" />
+  <component name="OpenIdeProjectLocalState">
+    <option name="firstOpen" value="false" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="3ClQaa1Q0IqZid6VFjxt7HeZvpg" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/nikit/myGameForC#/run-from-rkn"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7173e44b-5dc4-4b53-8064-c82e84bc0160" name="Changes" comment="" />
+      <created>1776957741038</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1776957741038</updated>
+    </task>
+    <servers />
+  </component>
+</project>
