@@ -7,6 +7,8 @@ namespace RunnerGame.Model
         public float Height { get; set; }
         public float Width { get; set; }
         public ObstacleType Type { get; set; }
+        public bool WasThreatening { get; set; }
+        public bool StyleRewardGranted { get; set; }
     }
 
     public enum ObstacleType

@@ -36,6 +36,13 @@ namespace RunnerGame.Model
         public float PlayerJumpHeight { get; set; }
         public float PlayerVerticalVelocity { get; set; }
         public float RknDepth { get; set; } = MaxDepth - 4f;
+        public RunnerType SelectedRunner { get; set; } = RunnerType.Classic;
+        public SkinType SelectedSkin { get; set; } = SkinType.Default;
+        public int ComboCount { get; set; }
+        public int BestCombo { get; set; }
+        public int ComboFlashTimer { get; set; }
+        public string ComboMessage { get; set; } = string.Empty;
+        public int AdrenalineTimer { get; set; }
 
         public int MaxDanger { get; } = 100;
         public int SmallHit { get; } = 25;

@@ -12,6 +12,8 @@ namespace RunnerGame.Presentation
         event EventHandler? MoveRightRequested;
         event EventHandler? JumpRequested;
 
+        RunnerType SelectedRunner { get; }
+        SkinType SelectedSkin { get; }
         void Attach(GameState gameState, GameRenderer gameRenderer);
         void ShowMainMenu();
         void HideMainMenu();

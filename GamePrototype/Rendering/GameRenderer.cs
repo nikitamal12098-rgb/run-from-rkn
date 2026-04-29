@@ -346,13 +346,14 @@ namespace RunnerGame.Rendering
                 shadowWidth,
                 shadowHeight);
 
+            Color runnerColor = GetRunnerAccentColor(state);
             Color glowColor = state.IsInvincible
                 ? Color.FromArgb(80, 85, 255, 210)
                 : state.SlowTimer > 0
                     ? Color.FromArgb(65, 120, 255, 245)
                     : state.HitFlashTimer > 0 && state.HitFlashTimer % 4 < 2
                         ? Color.FromArgb(85, 255, 80, 80)
-                        : Color.FromArgb(45, 255, 255, 255);
+                        : Color.FromArgb(48, runnerColor);
 
             using var glowBrush = new SolidBrush(glowColor);
             g.FillEllipse(
@@ -364,7 +365,7 @@ namespace RunnerGame.Rendering
 
             g.DrawImage(GetPlayerImage(state), headRect);
 
-            using var laneRingPen = new Pen(Color.FromArgb(175, 145, 255, 240), 3f);
+            using var laneRingPen = new Pen(Color.FromArgb(200, runnerColor), 3f);
             g.DrawArc(
                 laneRingPen,
                 headRect.X - 18f,
@@ -399,7 +400,7 @@ namespace RunnerGame.Rendering
 
         private void DrawHud(Graphics g, Size clientSize, GameState state)
         {
-            RectangleF hudRect = new(18f, 16f, 290f, 124f);
+            RectangleF hudRect = new(18f, 16f, 310f, 152f);
             using var hudBrush = new SolidBrush(Color.FromArgb(145, 10, 16, 28));
             using var hudBorder = new Pen(Color.FromArgb(130, 255, 255, 255), 1.5f);
             g.FillRoundedRectangle(hudBrush, hudRect, 18f);
@@ -412,11 +413,16 @@ namespace RunnerGame.Rendering
                 _ => Color.FromArgb(80, 225, 140)
             };
 
+            Color runnerColor = GetRunnerAccentColor(state);
             using var dangerBrush = new SolidBrush(dangerColor);
+            using var runnerBrush = new SolidBrush(runnerColor);
             g.DrawString($"Score: {state.Score}", titleFont, Brushes.White, 32f, 28f);
+            g.DrawString($"Runner: {GetRunnerName(state.SelectedRunner)}", hudFont, runnerBrush, 32f, 54f);
+            g.DrawString($"Skin: {GetSkinName(state.SelectedSkin)}", hudFont, Brushes.WhiteSmoke, 170f, 54f);
             g.DrawString($"RKN: {state.DangerLevel}%", hudFont, dangerBrush, 32f, 65f);
-            g.DrawString($"Скорость: {state.CurrentSpeed:0.0}", hudFont, Brushes.WhiteSmoke, 32f, 91f);
-            g.DrawString(GetStateLabel(state), hudFont, Brushes.WhiteSmoke, 32f, 117f);
+            g.DrawString($"Скорость: {state.CurrentSpeed:0.0}", hudFont, Brushes.WhiteSmoke, 32f, 89f);
+            g.DrawString(GetStateLabel(state), hudFont, Brushes.WhiteSmoke, 32f, 113f);
+            g.DrawString($"Combo: x{state.ComboCount}", hudFont, Brushes.WhiteSmoke, 32f, 137f);
 
             RectangleF tipRect = new(clientSize.Width - 350f, 18f, 320f, 92f);
             g.FillRoundedRectangle(hudBrush, tipRect, 18f);
@@ -424,6 +430,31 @@ namespace RunnerGame.Rendering
             g.DrawString("← → меняют полосу мира", hudFont, Brushes.White, tipRect.X + 18f, tipRect.Y + 16f);
             g.DrawString("Space / Up: прыжок над DDOS", hudFont, Brushes.White, tipRect.X + 18f, tipRect.Y + 40f);
             g.DrawString("DDOS прыгай, hacker объезжай", hudFont, Brushes.White, tipRect.X + 18f, tipRect.Y + 64f);
+
+            DrawStyleHud(g, clientSize, state, hudBrush, hudBorder);
+        }
+
+        private void DrawStyleHud(Graphics g, Size clientSize, GameState state, Brush hudBrush, Pen hudBorder)
+        {
+            RectangleF styleRect = new(clientSize.Width - 350f, 122f, 320f, 92f);
+            g.FillRoundedRectangle(hudBrush, styleRect, 18f);
+            g.DrawRoundedRectangle(hudBorder, styleRect, 18f);
+
+            string adrenalineText = state.AdrenalineTimer > 0
+                ? $"Adrenaline: {state.AdrenalineTimer / 60f:0.0}s"
+                : "Adrenaline: charging";
+
+            Color adrenalineColor = state.AdrenalineTimer > 0
+                ? Color.FromArgb(255, 100, 225, 170)
+                : Color.FromArgb(210, 185, 195, 205);
+            using var adrenalineBrush = new SolidBrush(adrenalineColor);
+
+            g.DrawString(adrenalineText, hudFont, adrenalineBrush, styleRect.X + 18f, styleRect.Y + 14f);
+            g.DrawString($"Best combo: x{Math.Max(state.BestCombo, state.ComboCount)}", hudFont, Brushes.White, styleRect.X + 18f, styleRect.Y + 39f);
+
+            string message = state.ComboMessage.Length > 0 ? state.ComboMessage : "Стиль играет роль";
+            Brush messageBrush = state.ComboFlashTimer > 0 ? adrenalineBrush : Brushes.WhiteSmoke;
+            g.DrawString(message, hudFont, messageBrush, styleRect.X + 18f, styleRect.Y + 63f);
         }
 
         private void DrawLaneThreats(Graphics g, Size clientSize, GameState state)
@@ -533,6 +564,53 @@ namespace RunnerGame.Rendering
             }
 
             return assets.PlayerNormal;
+        }
+
+        private string GetRunnerName(RunnerType runnerType)
+        {
+            return runnerType switch
+            {
+                RunnerType.Sprinter => "Sprinter",
+                RunnerType.Acrobat => "Acrobat",
+                _ => "Classic"
+            };
+        }
+
+        private Color GetRunnerAccentColor(GameState state)
+        {
+            if (state.SelectedSkin != SkinType.Default)
+            {
+                return GetSkinAccentColor(state.SelectedSkin);
+            }
+
+            return state.SelectedRunner switch
+            {
+                RunnerType.Sprinter => Color.FromArgb(255, 180, 95),
+                RunnerType.Acrobat => Color.FromArgb(120, 255, 210),
+                _ => Color.FromArgb(145, 255, 240)
+            };
+        }
+
+        private string GetSkinName(SkinType skinType)
+        {
+            return skinType switch
+            {
+                SkinType.Neon => "Neon",
+                SkinType.Crimson => "Crimson",
+                SkinType.Ghost => "Ghost",
+                _ => "Default"
+            };
+        }
+
+        private Color GetSkinAccentColor(SkinType skinType)
+        {
+            return skinType switch
+            {
+                SkinType.Neon => Color.FromArgb(95, 255, 225),
+                SkinType.Crimson => Color.FromArgb(255, 110, 90),
+                SkinType.Ghost => Color.FromArgb(180, 220, 255),
+                _ => Color.FromArgb(145, 255, 240)
+            };
         }
 
         private void DrawJumpAssist(Graphics g, Size clientSize, GameState state, RectangleF headRect, float baseY)

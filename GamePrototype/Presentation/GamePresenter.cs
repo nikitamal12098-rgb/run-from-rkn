@@ -30,7 +30,13 @@ namespace RunnerGame.Presentation
 
         private void HandleStartGameRequested(object? sender, EventArgs e)
         {
-            state = new GameState();
+            state = new GameState
+            {
+                SelectedRunner = view.SelectedRunner,
+                SelectedSkin = view.SelectedSkin
+            };
+
+            ApplyRunnerStartProfile();
             view.Attach(state, renderer);
             view.HideMainMenu();
             view.Start();
@@ -50,6 +56,7 @@ namespace RunnerGame.Presentation
             UpdatePlayerJump();
             MoveObstacles();
             MoveBonuses();
+            UpdateObstacleStyleWindows();
             SpawnObstacle();
             SpawnBonus();
             CheckCollisions();
@@ -87,13 +94,20 @@ namespace RunnerGame.Presentation
         {
             if (state.PlayerJumpHeight <= 0.001f)
             {
-                state.PlayerVerticalVelocity = GameState.JumpStrength;
+                state.PlayerVerticalVelocity = GetJumpStrength();
             }
+        }
+
+        private void ApplyRunnerStartProfile()
+        {
+            state.TargetSpeed = GetRunnerStartingSpeed();
+            state.CurrentSpeed = state.TargetSpeed;
+            state.SpawnChance = state.SelectedRunner == RunnerType.Sprinter ? 6 : 5;
         }
 
         private void UpdateLaneAnimation()
         {
-            state.PlayerVisualLane += (state.PlayerLane - state.PlayerVisualLane) * 0.22f;
+            state.PlayerVisualLane += (state.PlayerLane - state.PlayerVisualLane) * GetLaneAnimationSpeed();
         }
 
         private void UpdatePlayerJump()
@@ -133,6 +147,51 @@ namespace RunnerGame.Presentation
                 if (state.Bonuses[i].Depth <= 0.8f)
                 {
                     state.Bonuses.RemoveAt(i);
+                }
+            }
+        }
+
+        private void UpdateObstacleStyleWindows()
+        {
+            foreach (var obstacle in state.Obstacles)
+            {
+                if (!obstacle.WasThreatening &&
+                    obstacle.Lane == state.PlayerLane &&
+                    obstacle.Depth <= 16f &&
+                    obstacle.Depth >= GameState.PlayerCollisionDepth)
+                {
+                    obstacle.WasThreatening = true;
+                }
+
+                if (!obstacle.WasThreatening || obstacle.StyleRewardGranted || obstacle.Depth > 2.1f)
+                {
+                    continue;
+                }
+
+                string? message = null;
+                int comboGain = 1;
+
+                if (obstacle.Type == ObstacleType.Low)
+                {
+                    if (obstacle.Lane == state.PlayerLane && state.PlayerJumpHeight >= GetLowObstacleClearHeight())
+                    {
+                        message = state.SelectedRunner == RunnerType.Acrobat ? "Sky Step" : "Clean Jump";
+                        comboGain = state.SelectedRunner == RunnerType.Acrobat ? 2 : 1;
+                    }
+                    else if (obstacle.Lane != state.PlayerLane)
+                    {
+                        message = "Lane Escape";
+                    }
+                }
+                else if (obstacle.Lane != state.PlayerLane)
+                {
+                    message = state.SelectedRunner == RunnerType.Sprinter ? "Slipstream" : "Near Miss";
+                }
+
+                if (message is not null)
+                {
+                    obstacle.StyleRewardGranted = true;
+                    RegisterStylePlay(message, comboGain);
                 }
             }
         }
@@ -216,7 +275,7 @@ namespace RunnerGame.Presentation
                 }
 
                 bool clearsLowObstacle = obstacle.Type == ObstacleType.Low &&
-                    state.PlayerJumpHeight >= GameState.LowObstacleJumpClearHeight;
+                    state.PlayerJumpHeight >= GetLowObstacleClearHeight();
 
                 if (clearsLowObstacle)
                 {
@@ -225,6 +284,7 @@ namespace RunnerGame.Presentation
 
                 if (!state.IsInvincible)
                 {
+                    BreakCombo("Combo Lost");
                     state.HitFlashTimer = 20;
                     state.DangerLevel += obstacle.Type == ObstacleType.High ? state.BigHit : state.SmallHit;
                     if (state.DangerLevel > state.MaxDanger)
@@ -253,17 +313,20 @@ namespace RunnerGame.Presentation
                 {
                     case BonusType.Vpn:
                         state.IsInvincible = true;
-                        state.InvincibleTimer = 120;
+                        state.InvincibleTimer = state.SelectedRunner == RunnerType.Classic ? 145 : 120;
+                        RegisterSoftMessage("Shield Up");
                         break;
                     case BonusType.ProxyHeal:
-                        state.DangerLevel -= 25;
+                        state.DangerLevel -= state.SelectedRunner == RunnerType.Classic ? 30 : 25;
                         if (state.DangerLevel < 0)
                         {
                             state.DangerLevel = 0;
                         }
+                        RegisterSoftMessage("Recovered");
                         break;
                     case BonusType.Slow:
-                        state.SlowTimer = 120;
+                        state.SlowTimer = state.SelectedRunner == RunnerType.Acrobat ? 150 : 120;
+                        RegisterSoftMessage("Time Stretch");
                         break;
                 }
 
@@ -273,7 +336,13 @@ namespace RunnerGame.Presentation
 
         private void UpdateScore()
         {
-            state.ScoreProgress += state.CurrentSpeed * 0.12f;
+            float scoreRate = state.CurrentSpeed * 0.12f * GetScoreMultiplier();
+            if (state.AdrenalineTimer > 0)
+            {
+                scoreRate *= 1.28f;
+            }
+
+            state.ScoreProgress += scoreRate;
 
             while (state.ScoreProgress >= 1f)
             {
@@ -284,9 +353,9 @@ namespace RunnerGame.Presentation
 
         private void IncreaseDifficulty()
         {
-            if (state.GameTick % 240 == 0)
+            if (state.GameTick % GetSpeedGrowthInterval() == 0)
             {
-                state.TargetSpeed = Math.Min(GameState.MaxSpeed, state.TargetSpeed + 0.35f);
+                state.TargetSpeed = Math.Min(GameState.MaxSpeed, state.TargetSpeed + GetSpeedGrowthAmount());
             }
 
             if (state.GameTick % 360 == 0 && state.SpawnChance < 14)
@@ -304,6 +373,15 @@ namespace RunnerGame.Presentation
                 state.HitFlashTimer--;
             }
 
+            if (state.ComboFlashTimer > 0)
+            {
+                state.ComboFlashTimer--;
+            }
+            else if (state.ComboMessage.Length > 0)
+            {
+                state.ComboMessage = string.Empty;
+            }
+
             if (state.IsInvincible)
             {
                 state.InvincibleTimer--;
@@ -319,7 +397,18 @@ namespace RunnerGame.Presentation
                 desiredSpeed = Math.Max(2.5f, state.TargetSpeed * 0.65f);
             }
 
-            state.CurrentSpeed += (desiredSpeed - state.CurrentSpeed) * 0.035f;
+            if (state.AdrenalineTimer > 0)
+            {
+                state.AdrenalineTimer--;
+                desiredSpeed = Math.Min(GameState.MaxSpeed, desiredSpeed + GetAdrenalineSpeedBonus());
+
+                if (state.AdrenalineTimer % 45 == 0 && state.DangerLevel > 0)
+                {
+                    state.DangerLevel--;
+                }
+            }
+
+            state.CurrentSpeed += (desiredSpeed - state.CurrentSpeed) * GetSpeedSmoothing();
         }
 
         private void UpdateDanger()
@@ -335,8 +424,152 @@ namespace RunnerGame.Presentation
 
         private void UpdateRkn()
         {
-            float targetDepth = Math.Max(8f, GameState.MaxDepth - state.DangerLevel * 0.72f);
+            float adrenalineRelief = state.AdrenalineTimer > 0 ? 8f : 0f;
+            float targetDepth = Math.Max(8f, GameState.MaxDepth - state.DangerLevel * 0.72f + adrenalineRelief);
             state.RknDepth += (targetDepth - state.RknDepth) * 0.08f;
+        }
+
+        private void RegisterStylePlay(string message, int comboGain)
+        {
+            state.ComboCount += comboGain;
+            if (state.ComboCount > state.BestCombo)
+            {
+                state.BestCombo = state.ComboCount;
+            }
+
+            state.Score += 4 + comboGain * 2;
+            state.ComboMessage = $"{message} x{state.ComboCount}";
+            state.ComboFlashTimer = 80;
+
+            if (state.SelectedRunner == RunnerType.Acrobat)
+            {
+                state.DangerLevel = Math.Max(0, state.DangerLevel - 1);
+            }
+
+            int threshold = GetAdrenalineThreshold();
+            if (state.ComboCount >= threshold)
+            {
+                state.AdrenalineTimer = Math.Min(240, state.AdrenalineTimer + GetAdrenalineDurationGain());
+                state.ComboMessage = "ADRENALINE";
+                state.ComboFlashTimer = 95;
+            }
+        }
+
+        private void RegisterSoftMessage(string message)
+        {
+            state.ComboMessage = message;
+            state.ComboFlashTimer = 55;
+        }
+
+        private void BreakCombo(string message)
+        {
+            if (state.ComboCount <= 0)
+            {
+                state.ComboMessage = message;
+                state.ComboFlashTimer = 36;
+                state.AdrenalineTimer = 0;
+                return;
+            }
+
+            state.ComboCount = 0;
+            state.AdrenalineTimer = 0;
+            state.ComboMessage = message;
+            state.ComboFlashTimer = 55;
+        }
+
+        private float GetRunnerStartingSpeed()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Sprinter => 4.4f,
+                RunnerType.Acrobat => 3.9f,
+                _ => GameState.StartingSpeed
+            };
+        }
+
+        private float GetJumpStrength()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Acrobat => 0.42f,
+                RunnerType.Sprinter => 0.35f,
+                _ => GameState.JumpStrength
+            };
+        }
+
+        private float GetLowObstacleClearHeight()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Acrobat => 0.67f,
+                RunnerType.Sprinter => 0.77f,
+                _ => GameState.LowObstacleJumpClearHeight
+            };
+        }
+
+        private float GetLaneAnimationSpeed()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Sprinter => 0.29f,
+                RunnerType.Acrobat => 0.24f,
+                _ => 0.22f
+            };
+        }
+
+        private float GetScoreMultiplier()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Sprinter => 1.12f,
+                RunnerType.Acrobat => 1.05f,
+                _ => 1f
+            };
+        }
+
+        private int GetSpeedGrowthInterval()
+        {
+            return state.SelectedRunner == RunnerType.Sprinter ? 210 : 240;
+        }
+
+        private float GetSpeedGrowthAmount()
+        {
+            return state.SelectedRunner == RunnerType.Sprinter ? 0.4f : 0.35f;
+        }
+
+        private float GetSpeedSmoothing()
+        {
+            return state.SelectedRunner == RunnerType.Sprinter ? 0.05f : 0.035f;
+        }
+
+        private float GetAdrenalineSpeedBonus()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Sprinter => 0.65f,
+                RunnerType.Acrobat => 0.28f,
+                _ => 0.38f
+            };
+        }
+
+        private int GetAdrenalineThreshold()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Acrobat => 4,
+                RunnerType.Sprinter => 3,
+                _ => 3
+            };
+        }
+
+        private int GetAdrenalineDurationGain()
+        {
+            return state.SelectedRunner switch
+            {
+                RunnerType.Sprinter => 105,
+                RunnerType.Acrobat => 90,
+                _ => 95
+            };
         }
     }
 }
